@@ -56,4 +56,3 @@ jobs:
     inputs:
       ArtifactName: MyProject_TEST_$(Build.BuildNumber)
 ...
-YAML
