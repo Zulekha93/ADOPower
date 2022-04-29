@@ -1,0 +1,58 @@
+variables:
+- name: BuildParameters.SolutionName
+  value: [Project_Name]
+jobs:
+- job: Job_1
+  displayName: Agent job 1
+  pool:
+    vmImage: windows-2019
+  steps:
+  - checkout: self
+  - task: PowerPlatformToolInstaller@0
+    displayName: 'Power Platform Tool Installer '
+  - task: PowerPlatformWhoAmi@0
+    displayName: 'Power Platform WhoAmI '
+    inputs:
+      authenticationType: PowerPlatformSPN
+      PowerPlatformSPN: 6ea636b2-156d-49ed-8f91-ab3a7c523f42
+  - task: PowerPlatformPublishCustomizations@0
+    displayName: 'Power Platform Publish Customizations '
+    inputs:
+      authenticationType: PowerPlatformSPN
+      PowerPlatformSPN: 6ea636b2-156d-49ed-8f91-ab3a7c523f42
+  - task: PowerPlatformExportSolution@0
+    displayName: 'Power Platform Export Solution '
+    inputs:
+      authenticationType: PowerPlatformSPN
+      PowerPlatformSPN: 6ea636b2-156d-49ed-8f91-ab3a7c523f42
+      SolutionName: $(BuildParameters.SolutionName)
+      SolutionOutputFile: $(Build.ArtifactStagingDirectory)\[Project_Name]_TEST.zip
+  - task: PowerPlatformChecker@0
+    displayName: 'Power Platform Checker '
+    enabled: False
+    inputs:
+      PowerPlatformSPN: 6ea636b2-156d-49ed-8f91-ab3a7c523f42
+  - task: PowerPlatformSetSolutionVersion@0
+    displayName: 'Power Platform Set Solution Version '
+    inputs:
+      authenticationType: PowerPlatformSPN
+      PowerPlatformSPN: 6ea636b2-156d-49ed-8f91-ab3a7c523f42
+      SolutionName: $(BuildParameters.SolutionName)
+      SolutionVersionNumber: 1.0.0.$(Build.BuildNumber)
+  - task: PowerPlatformExportSolution@0
+    displayName: 'Power Platform Export Solution '
+    inputs:
+      authenticationType: PowerPlatformSPN
+      PowerPlatformSPN: 6ea636b2-156d-49ed-8f91-ab3a7c523f42
+      SolutionName: $(BuildParameters.SolutionName)
+      SolutionOutputFile: $(Build.ArtifactStagingDirectory)\[Project_Name]_TEST.zip
+  - task: PowerPlatformUnpackSolution@0
+    displayName: 'Power Platform Unpack Solution '
+    inputs:
+      SolutionInputFile: $(Build.ArtifactStagingDirectory)\[Project_Name]_TEST.zip
+      SolutionTargetFolder: $(Build.ArtifactStagingDirectory)\[Project_Name]_TEST.zip
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: [Project_Name]_TEST_$(Build.BuildNumber)'
+    inputs:
+      ArtifactName: [Project_Name]_TEST_$(Build.BuildNumber)
+...
